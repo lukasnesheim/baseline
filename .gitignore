@@ -47,3 +47,9 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# DS Store
+.DS_Store
+
+# output images
+*.png
