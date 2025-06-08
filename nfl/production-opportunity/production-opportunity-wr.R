@@ -119,8 +119,8 @@ wopr_fppt <- ggplot(
   scale_color_identity() +
   geom_text_repel(
     aes(label = short),
-    family = "montserrat_semibold",
-    color = style$chart$font$color$body,
+    family = style$chart$font$family$label,
+    color = style$chart$font$color$label,
     size = 2.25,
     point.padding = 0.4,
     box.padding = 0.25,
@@ -163,10 +163,10 @@ wopr_fppt <- ggplot(
   ) +
   theme_baseline_gg()
 
+showtext::showtext_auto()
+
 wopr_fppt <- wopr_fppt %>%
   add_logo_gg()
-
-showtext::showtext_auto()
 
 # save plot
 ggsave(
