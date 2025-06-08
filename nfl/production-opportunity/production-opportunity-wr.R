@@ -93,7 +93,7 @@ stats <- pbp_stats %>%
     by = "team"
   ) %>%
   filter(pos == "WR") %>%
-  filter(tgt >= gp * 5 | rank <= 40)
+  filter(rank <= 50)
 
 # set dynamic axis limits
 wopr_fppt_lims <- list(
@@ -122,7 +122,7 @@ wopr_fppt <- ggplot(
     family = "montserrat_semibold",
     color = style$chart$font$color$body,
     size = 2.25,
-    point.padding = 0.5,
+    point.padding = 0.4,
     box.padding = 0.25,
     max.overlaps = Inf
   ) +
