@@ -1,0 +1,26 @@
+# flip certain team colors for readability
+flip_color <- c(
+  "BAL",
+  "BUF",
+  "CHI",
+  "DAL",
+  "DEN",
+  "DET",
+  "GB",
+  "HOU",
+  "IND",
+  "KC",
+  "LA",
+  "LAC",
+  "LV",
+  "MIA",
+  "MIN",
+  "NE",
+  "NYG",
+  "PHI",
+  "PIT",
+  "SEA",
+  "SF",
+  "TEN",
+  "WAS"
+)
