@@ -19,7 +19,7 @@ source(here("nfl", "shared", "nfl-utility.R"))
 style <- read_json(system.file("style.json", package = "baseliner"))
 color <- read_json(system.file("color.json", package = "baseliner"))
 
-week <- 0
+current_week <- 0
 season <- most_recent_season()
 summary_level <- c("season", "week")
 
@@ -63,6 +63,7 @@ wr_stats <- calculate_stats(
     fppr = fpts / rec
   ) %>%
   arrange(desc(fpts)) %>%
+  mutate(rank = seq_len(nrow(.))) %>%
   slice(1:50)
 
 # load play-by-play stats
@@ -82,10 +83,10 @@ pbp_stats <- load_pbp(season) %>%
   ungroup() %>%
   select(id = receiver_id, everything())
 
-# merge base stats and play-by-play stats
-stats <- pbp_stats %>%
+# merge base stats and play-by-play stats with team info
+stats <- wr_stats %>%
   inner_join(
-    wr_stats,
+    pbp_stats,
     by = "id"
   ) %>%
   inner_join(
@@ -99,7 +100,7 @@ wopr_fppt_lims <- list(
   ylim = c(min(stats$fppt) - 0.01, max(stats$fppt) + 0.01)
 )
 
-# plot production (y-axis) by weighted opportunity (x-axis)
+# plot fppt (y-axis) by wopr (x-axis)
 wopr_fppt <- ggplot(
   stats,
   aes(x = wopr_scaled, y = fppt)
@@ -157,8 +158,11 @@ wopr_fppt <- ggplot(
   labs(
     title = "Throw Me the Damn Ball",
     subtitle = "Receiver Production in 2024",
-    caption = "Charting: Lukas Nesheim (data via nflverse)",
-    x = "Weighted Opportunity",
+    caption = paste0(
+      "Charting: Lukas Nesheim (data via nflverse)\n   ",
+      "\u2020 Weighted Opportunity Rating is defined as: (1.5 \u00D7 target share) + (0.7 \u00d7 air yards share)."
+    ),
+    x = expression("Weighted Opportunity Rating"^"\u2020"),
     y = "Fantasy Points per Target"
   ) +
   theme_baseline_gg()

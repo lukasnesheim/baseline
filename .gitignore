@@ -51,5 +51,8 @@ rsconnect/
 # DS Store
 .DS_Store
 
-# output images
+# Output images
 *.png
+
+# NFL data
+/nfl/production-opportunity/data/

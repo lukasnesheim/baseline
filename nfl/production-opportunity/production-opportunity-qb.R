@@ -11,7 +11,6 @@ library(nflverse)
 library(here)
 library(jsonlite)
 library(ggrepel)
-library(ragg)
 
 # source shared utilities
 source(here("nfl", "shared", "nfl-utility.R"))
@@ -20,7 +19,7 @@ source(here("nfl", "shared", "nfl-utility.R"))
 style <- read_json(system.file("style.json", package = "baseliner"))
 color <- read_json(system.file("color.json", package = "baseliner"))
 
-week <- 0
+current_week <- 0
 season <- most_recent_season()
 summary_level <- c("season", "week")
 
@@ -74,7 +73,8 @@ qb_stats <- calculate_stats(
   mutate(rank = seq_len(nrow(.))) %>%
   slice(1:35)
 
-snaps <- load_pbp(seasons = season) %>%
+# calculate number of plays
+plays <- load_pbp(seasons = season) %>%
   filter(play == 1) %>%
   filter(qb_dropback == 1 | play_type == "run") %>%
   mutate(id = coalesce(passer_id, rusher_id)) %>%
@@ -83,29 +83,30 @@ snaps <- load_pbp(seasons = season) %>%
     by = "id"
   ) %>%
   group_by(id) %>%
-  summarize(snaps = n())
+  summarize(plays = n())
 
+# merge base stats and number of plays with team info
 stats <- qb_stats %>%
   left_join(
     teams,
     by = "team"
   ) %>%
   left_join(
-    snaps,
+    plays,
     by = "id"
   ) %>%
-  mutate(epa_snap = epa / snaps)
+  mutate(epa_play = epa / plays)
 
 # set dynamic axis limits
 cpoe_epa_lims <- list(
   xlim = c(min(stats$cpoe) - 0.01, max(stats$cpoe) + 0.01),
-  ylim = c(min(stats$epa_snap) - 0.01, max(stats$epa_snap) + 0.01)
+  ylim = c(min(stats$epa_play) - 0.01, max(stats$epa_play) + 0.01)
 )
 
 # plot epa (y-axis) by cpoe (x-axis)
 cpoe_epa <- ggplot(
   stats,
-  aes(x = cpoe, y = epa_snap)
+  aes(x = cpoe, y = epa_play)
 ) +
   geom_point(
     aes(
@@ -143,8 +144,8 @@ cpoe_epa <- ggplot(
     "segment",
     x = cpoe_epa_lims$xlim[1] + 0.01,
     xend = cpoe_epa_lims$xlim[2] - 0.01,
-    y = median(stats$epa_snap, na.rm = TRUE),
-    yend = median(stats$epa_snap, na.rm = TRUE),
+    y = median(stats$epa_play, na.rm = TRUE),
+    yend = median(stats$epa_play, na.rm = TRUE),
     color = color$london[[3]],
     linewidth = 0.5,
     linetype = "dashed",
