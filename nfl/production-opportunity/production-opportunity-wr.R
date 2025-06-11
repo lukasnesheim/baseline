@@ -19,18 +19,25 @@ source(here("nfl", "shared", "nfl-utility.R"))
 style <- read_json(system.file("style.json", package = "baseliner"))
 color <- read_json(system.file("color.json", package = "baseliner"))
 
+week <- 0
 season <- most_recent_season()
+summary_level <- c("season", "week")
+
+showtext::showtext_auto()
+showtext::showtext_opts(dpi = 600)
 
 # load team data
-teams <- load_teams()
+teams <- load_teams() %>%
+  select(team = team_abbr, team_pri = team_color, team_sec = team_color2)
 
 # load base nflverse stats
-rec_stats <- calculate_stats(
+wr_stats <- calculate_stats(
   seasons = season,
-  summary_level = "season",
+  summary_level = summary_level[1],
   stat_type = "player",
   season_type = "REG"
 ) %>%
+  filter(position == "WR") %>%
   transmute(
     id = player_id,
     name = player_display_name,
@@ -55,10 +62,8 @@ rec_stats <- calculate_stats(
     fppt = fpts / tgt,
     fppr = fpts / rec
   ) %>%
-  group_by(pos) %>%
-  arrange(desc(fpts), .by_group = TRUE) %>%
-  mutate(rank = row_number()) %>%
-  ungroup()
+  arrange(desc(fpts)) %>%
+  slice(1:50)
 
 # load play-by-play stats
 pbp_stats <- load_pbp(season) %>%
@@ -79,21 +84,14 @@ pbp_stats <- load_pbp(season) %>%
 
 # merge base stats and play-by-play stats
 stats <- pbp_stats %>%
-  left_join(
-    rec_stats,
+  inner_join(
+    wr_stats,
     by = "id"
   ) %>%
-  left_join(
-    teams %>%
-      select(
-        team = team_abbr,
-        team_pri = team_color,
-        team_sec = team_color2
-      ),
+  inner_join(
+    teams,
     by = "team"
-  ) %>%
-  filter(pos == "WR") %>%
-  filter(rank <= 50)
+  )
 
 # set dynamic axis limits
 wopr_fppt_lims <- list(
@@ -112,8 +110,8 @@ wopr_fppt <- ggplot(
       color = ifelse(team %in% flip_color, team_pri, team_sec)
     ),
     shape = 21,
-    size = 1.5,
-    stroke = 0.75
+    size = 2,
+    stroke = 1
   ) +
   scale_fill_identity() +
   scale_color_identity() +
@@ -121,8 +119,8 @@ wopr_fppt <- ggplot(
     aes(label = short),
     family = style$chart$font$family$label,
     color = style$chart$font$color$label,
-    size = 2.25,
-    point.padding = 0.4,
+    size = 2.5,
+    point.padding = 0.5,
     box.padding = 0.25,
     max.overlaps = Inf
   ) +
@@ -138,11 +136,12 @@ wopr_fppt <- ggplot(
     "segment",
     x = wopr_fppt_lims$xlim[1] + 0.01,
     xend = wopr_fppt_lims$xlim[2] - 0.01,
-    y = mean(stats$fppt, na.rm = TRUE),
-    yend = mean(stats$fppt, na.rm = TRUE),
-    color = color$london[[5]],
+    y = median(stats$fppt, na.rm = TRUE),
+    yend = median(stats$fppt, na.rm = TRUE),
+    color = color$london[[3]],
     linewidth = 0.5,
-    linetype = "dashed"
+    linetype = "dashed",
+    alpha = 0.6
   ) +
   annotate(
     "segment",
@@ -150,30 +149,18 @@ wopr_fppt <- ggplot(
     xend = median(stats$wopr_scaled, na.rm = TRUE),
     y = wopr_fppt_lims$ylim[1] + 0.01,
     yend = wopr_fppt_lims$ylim[2] - 0.01,
-    color = color$london[[5]],
+    color = color$london[[3]],
     linewidth = 0.5,
-    linetype = "dashed"
+    linetype = "dashed",
+    alpha = 0.6
   ) +
   labs(
-    title = "Production Function",
-    subtitle = "receiving production by weighted opportunity",
+    title = "Throw Me the Damn Ball",
+    subtitle = "Receiver Production in 2024",
     caption = "Charting: Lukas Nesheim (data via nflverse)",
     x = "Weighted Opportunity",
     y = "Fantasy Points per Target"
   ) +
   theme_baseline_gg()
 
-showtext::showtext_auto()
-
-wopr_fppt <- wopr_fppt %>%
-  add_logo_gg()
-
-# save plot
-ggsave(
-  "nfl/production-opportunity/wopr_fppt.png",
-  plot = wopr_fppt,
-  width = 6,
-  height = 6,
-  dpi = 600,
-  units = "in"
-)
+ggsave_with_logo(wopr_fppt, "nfl/production-opportunity/wopr_fppt.png")
