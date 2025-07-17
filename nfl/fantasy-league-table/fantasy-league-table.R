@@ -99,19 +99,7 @@ table <- data %>%
       palette = c(color$london[[3]], color$london[[6]])
     ),
     alpha = 0.7
-  ) %>%
-  gt_save_crop(
-    file = paste0("nfl/fantasy-league-table/league_table.png"),
-    bg = color$background,
-    whitespace = 20,
-    zoom = 4
   )
 
-table_image <- magick::image_read("nfl/fantasy-league-table/league-table.png")
-final_image <- add_logo_gt(table_image, width = 1180, height = 1400)
-
-magick::image_write(
-  final_image,
-  "nfl/fantasy-league-table/league_table.png",
-  format = "png"
-)
+# save the table with logo
+gtsave_with_logo(table, "nfl/fantasy-league-table/league_table.png")
