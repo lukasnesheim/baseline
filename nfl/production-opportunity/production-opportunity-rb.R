@@ -151,7 +151,7 @@ wopg_fppwo <- ggplot(
     subtitle = "Back Production in 2024",
     caption = paste0(
       "Charting: Lukas Nesheim (data via nflverse)\n   ",
-      "\u2020 A weighted opportunity is defined as a carry or target multiplied by its relative scoring potential"
+      "\u2020 A weighted opportunity is defined as a carry or target multiplied by its relative scoring potential."
     ),
     x = expression("Weighted Opportunities"^"\u2020"),
     y = expression("Fantasy Points per Weighted Opportunity"^"\u2020")
