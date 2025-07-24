@@ -56,3 +56,12 @@ rsconnect/
 
 # NFL data
 /nfl/production-opportunity/data/
+
+# Python environment variables
+*.env
+
+# Python virtual environments
+*.venv
+
+# Python caching
+__pycache__
