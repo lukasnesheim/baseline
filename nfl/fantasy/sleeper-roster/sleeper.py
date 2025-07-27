@@ -5,9 +5,7 @@ def get_club_maxes(sleeper_league_id: str) -> dict[str, float] | None:
     try:
         # get roster data from sleeper api
         response = requests.get(f"https://api.sleeper.app/v1/league/{sleeper_league_id}/rosters")
-        
-        if response.status_code != 200:
-            raise RuntimeError(f"Sleeper API request failed with status code: {response.status_code}.")
+        response.raise_for_status()
         
         maxes: dict[str, float] = {}
         
