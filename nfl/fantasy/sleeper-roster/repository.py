@@ -2,10 +2,10 @@
 from model import Season
 from supabase import Client
 
-def get_season_by_sleeper_season_id(client: Client, sleeper_season_id: str) -> tuple[bool, Season | None]:
+def get_season_by_sleeper_league_id(client: Client, sleeper_league_id: str) -> tuple[bool, Season | None]:
     try:
         # query season records
-        response = client.table("season").select("*").eq("external", sleeper_season_id).execute()  
+        response = client.table("season").select("*").eq("external", sleeper_league_id).execute()  
         if not response.data:
             return True, None
         
