@@ -159,4 +159,4 @@ wopg_fppwo <- ggplot(
   theme_baseline_gg()
 
 # save the plot with logo
-ggsave_with_logo(wopg_fppwo, "nfl/production-opportunity/wopg_fppwo.png")
+ggsave_with_logo(wopg_fppwo, "wopg_fppwo.png")

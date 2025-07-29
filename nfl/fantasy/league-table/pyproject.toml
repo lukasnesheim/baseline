@@ -1,0 +1,20 @@
+[project]
+name = "league-table"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Lukas Nesheim",email = "lukenesh@me.com"}
+]
+readme = "README.md"
+requires-python = "^3.13"
+dependencies = [
+    "polars (>=1.31.0,<2.0.0)",
+    "supabase (>=2.17.0,<3.0.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)",
+    "baselinepy @ git+https://github.com/lukasnesheim/baselinepy.git"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -17,19 +17,14 @@ color <- read_json(system.file("color.json", package = "baseliner"))
 season <- 2024
 current_week <- 15
 
-# data wrangling (TODO: needs to be replaced with in-season code)
-data <- tibble(
-  rank = paste0(1:10, "."),
-  club = c("Rebranded", "Silver Foxes", "Nabers Think I'm Selling Dope", "Summerhouse FC", "Shiesty Joe", "The Gabagools", "D. Jonestown Massacre", "Super ARich Kids", "Law of the Land", "Ash Can't Ketchum"), # nolint
-  w = c(10, 9, 8, 8, 8, 7, 7, 6, 5, 2),
-  l = c(4, 5, 6, 6, 6, 7, 7, 8, 9, 12),
-  pf = c(2209.44, 1986.58, 2082.58, 2076.02, 1852.96, 2070.46, 2008.46, 1908.92, 1864.58, 1514.70), # nolint
-  pa = c(1978.64, 1875.99, 1983.96, 1946.12, 1693.60, 2071.80, 1988.42, 2062.38, 1991.80, 1981.86), # nolint
-  mpf = rep("-", 10),
-  move = c("", "", "", "", "<sup><span style='color: #3f8f29;'>+3</span></sup>", "<sup><span style='color: #bf1029;'>-1</span></sup>", "<sup><span style='color: #bf1029;'>-1</span></sup>", "<sup><span style='color: #bf1029;'>-1</span></sup>", "", "") # nolint
-) %>%
-  mutate(club = paste0(club, move), ortg = pf / (current_week - 1), drtg = pa / (current_week - 1)) %>% # nolint
-  select(-move, -pf, -pa, -mpf, mpf)
+data <- read_csv("podiums.csv") %>%
+  mutate(
+    move = c("", "", "", "", "<sup><span style='color: #3f8f29;'>+3</span></sup>", "<sup><span style='color: #bf1029;'>-1</span></sup>", "<sup><span style='color: #bf1029;'>-1</span></sup>", "<sup><span style='color: #bf1029;'>-1</span></sup>", "", ""), # nolint
+    club = paste0(club_name, move),
+    ortg = pf / (current_week - 1),
+    drtg = pa / (current_week - 1)
+  ) %>%
+  select(rank, club, win, loss, ortg, drtg, max, -move, -club_name, -pf, -pa)
 
 min_ortg <- min(data$ortg)
 max_ortg <- max(data$ortg)
@@ -51,14 +46,14 @@ table <- data %>%
   cols_label(
     "rank" ~ "",
     "club" ~ "CLUB",
-    "w" ~ "WIN",
-    "l" ~ "LOSS",
+    "win" ~ "WIN",
+    "loss" ~ "LOSS",
     "ortg" ~ "OFF. RTG",
     "drtg" ~ "DEF. RTG",
-    "mpf" ~ "MAX PTS"
+    "max" ~ "MAX PTS"
   ) %>%
   fmt_number(
-    columns = ortg:mpf,
+    columns = ortg:max,
     decimals = 2,
     use_seps = FALSE
   ) %>%
@@ -71,7 +66,7 @@ table <- data %>%
     style = cell_text(weight = style$table$font$weight$label)
   ) %>%
   tab_style(
-    locations = cells_body(columns = w:mpf),
+    locations = cells_body(columns = win:max),
     style = cell_text(align = "center")
   ) %>%
   tab_style(
@@ -102,4 +97,4 @@ table <- data %>%
   )
 
 # save the table with logo
-gtsave_with_logo(table, "nfl/fantasy-league-table/league_table.png")
+gtsave_with_logo(table, "league_table.png")
