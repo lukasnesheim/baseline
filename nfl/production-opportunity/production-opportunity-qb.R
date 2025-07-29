@@ -161,4 +161,4 @@ cpoe_epa <- ggplot(
   theme_baseline_gg()
 
 # save the plot with logo
-ggsave_with_logo(cpoe_epa, "nfl/production-opportunity/cpoe_epa.png")
+ggsave_with_logo(cpoe_epa, "cpoe_epa.png")

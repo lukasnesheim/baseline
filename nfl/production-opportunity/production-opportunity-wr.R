@@ -167,4 +167,4 @@ wopr_fppt <- ggplot(
   ) +
   theme_baseline_gg()
 
-ggsave_with_logo(wopr_fppt, "nfl/production-opportunity/wopr_fppt.png")
+ggsave_with_logo(wopr_fppt, "wopr_fppt.png")
